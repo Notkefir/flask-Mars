@@ -1,6 +1,5 @@
-from flask import Flask, url_for, render_template, make_response, request
+from flask import Flask, url_for, render_template, make_response, request, jsonify
 from werkzeug.utils import redirect
-
 
 from data.news import News
 from data.jobs import Jobs
@@ -83,6 +82,12 @@ def index():
     db_sess = db_session.create_session()
     jobs = db_sess.query(Jobs).all()
     return render_template("index.html", jobs=jobs)
+
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
 
 @app.route('/success')
 def success():
