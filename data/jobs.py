@@ -3,11 +3,12 @@ import sqlalchemy
 from sqlalchemy import orm
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy_serializer import SerializerMixin
+from flask_login import UserMixin
 
 from .db_session import SqlAlchemyBase
 
 
-class Jobs(SqlAlchemyBase, SerializerMixin):
+class Jobs(SqlAlchemyBase, SerializerMixin, UserMixin,):
     __tablename__ = 'jobs'
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     team_leader_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
@@ -18,7 +19,7 @@ class Jobs(SqlAlchemyBase, SerializerMixin):
     end_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
     is_finished = sqlalchemy.Column(sqlalchemy.Boolean, default=True)
 
-    team_leader = orm.relation('User')
+    user = orm.relation('User')
 
     def __repr__(self):
         return f"<CJobs> {self.id} {self.surname} {self.name}"
