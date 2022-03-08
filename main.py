@@ -11,6 +11,7 @@ from werkzeug.exceptions import abort
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
 from forms.user import LoginForm, RegisterForm
+from forms.jobsadd import JobsForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -67,6 +68,26 @@ def login():
                                message="Неправильный логин или пароль",
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
+
+
+@app.route('/jobs', methods=['GET', 'POST'])
+@login_required
+def add_jobs():
+    form = JobsForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        jobs = Jobs()
+        jobs.job = form.title.data
+        jobs.team_leader_id = form.team_leader_id.data
+        jobs.work_size = form.work_size.data
+        jobs.collaborators = form.collaborators.data
+        jobs.is_finished = form.is_finished.data
+        current_user.jobs.append(jobs)
+        db_sess.merge(current_user)
+        db_sess.commit()
+        return redirect('/')
+    return render_template('jobs.html', title='Добавление работы',
+                           form=form)
 
 
 @app.route('/logout')
